@@ -1,0 +1,43 @@
+Prompt:
+
+I attached my findings document and prompted this: (Gemini Pro 3)
+
+Use an LLM to generate regex patterns for secret hunting and automate documentation of findings.
+
+
+Answer:
+
+Target 1: MD5-crypt Hashes
+
+Regex Pattern: \$1\$[a-zA-Z0-9./]+\$[a-zA-Z0-9./]+
+
+
+Purpose: This pattern is designed to automatically identify MD5-based password hashes. It specifically looks for the $1$ identifier found in files like /etc/shadow.
+
+Target 2: Hardcoded Credentials
+
+Regex Pattern: (?i)(password|passwd|pwd|secret|token)\s*[:=]\s*['"][^'"]+['"]
+
+
+Purpose: This helps find sensitive assignments in configuration files and scripts. It is useful for flagging entries like the ones found in bin/config_generate.
+
+Target 3: Private Keys
+
+Regex Pattern: -----BEGIN (RSA|OPENSSH|ANY) PRIVATE KEY-----
+
+
+Purpose: This pattern automatically flags any embedded RSA or SSH private keys. It helps verify if files like etc/uhttpd.key contain actual key data or just references.
+
+Target 4: Diagnostic and Debug Pages
+
+Regex Pattern: (cmd|debug|diag|backdoor)\.(htm|php|lua|sh)
+
+
+Purpose: This pattern searches for hidden management or diagnostic filenames. It would successfully flag the cmd.htm page you identified as a security risk.
+
+Target 5: OpenWrt RPC Authentication
+
+Regex Pattern: option\s+(username|password)\s+['"][^'"]+['"]
+
+
+Purpose: This is a specialized pattern for finding authentication details inside OpenWrt configuration formats. It is particularly effective for auditing files like /etc/config/rpcd.
