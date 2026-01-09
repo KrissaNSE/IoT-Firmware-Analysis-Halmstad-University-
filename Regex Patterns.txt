@@ -1,0 +1,21 @@
+MD5-crypt Hashes
+Specifically identifies MD5-based password hashes starting with the $1$ identifier found in
+/etc/shadow.
+• \$1\$[a-zA-Z0-9./]+\$[a-zA-Z0-9./]+
+
+Hardcoded Credentials
+Finds password assignments in configuration files and scripts like bin/config_generate.
+• (?i)(password|passwd|pwd|secret|token)\s*[:=]\s*['"][^'"]+['"]
+
+Private Keys
+Automatically flags embedded RSA or SSH private keys, even if they are renamed or hidden.
+• -----BEGIN (RSA|OPENSSH|ANY) PRIVATE KEY-----
+
+Diagnostic/Debug Pages
+Searches for hidden management filenames similar to the cmd.htm page you identified.
+• (cmd|debug|diag|backdoor)\.(htm|php|lua|sh)
+
+OpenWrt RPC Auth
+A specialized pattern to catch authentication details inside OpenWrt config files like
+/etc/config/rpcd.
+• option\s+(username|password)\s+['"][^'"]+['"]
