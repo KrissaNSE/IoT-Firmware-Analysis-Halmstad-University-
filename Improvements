@@ -1,0 +1,18 @@
+1. Eliminate Hardcoded Credentials 
+All hardcoded credentials discovered within the firmware should be removed before production deployment. Devices should be provisioned with unique and randomly generated credentials during initial boot. This prevents large-scale compromise in the event that one device is breached.
+A process should be implemented where users are required to change default credentials on first use. Authentication mechanisms should also enforce minimum password complexity requirements, to protect against brute-force and dictionary attacks.
+
+2. Secure Credential Storage Using Strong Cryptographic Practices
+User credentials shouldn’t be stored in plaintext or using weak hashing algorithms. Passwords should be stored using modern and adaptive hashing function. These methods increase the cost of offline password cracking attacks.
+Sensitive configuration files should be protected with strict file permissions to prevent unauthorized access, and secrets should be isolated from application logic as much as possible. Where supported, hardware-backed security mechanisms should be used to protect cryptographic material.
+
+3. Remove Debug Functionality and Developer Interfaces from Production Firmware
+All developer-only features like diagnostic pages, debug endpoints, and hidden administrative interfaces should be disabled or completely removed from production firmware builds. 
+If diagnostic access is required for maintenance purposes, it should be protected using strong authentication, role-based access control, and secure logging. Leaving debug interfaces enabled in production could increase the risk of unauthorized access and remote exploitation.
+
+4. Enforce Secure Firmware Updates and Signed OTA Mechanisms
+All firmware updates should be cryptographically signed and verified by the device prior to installation. This ensures that only authorized firmware images can be installed and protects against malicious firmware injection.
+Secure over-the-air (OTA) update mechanisms should use encrypted transport channels, integrity verification, and rollback protection to prevent downgrade attacks. Devices should also validate firmware version numbers and maintain update logs for auditing and forensic purposes.
+
+5. Enforce more secure network and firewall recommendations
+Least-privilege firewall policies should be enforced across all network zones. Only necessary services and ports should be permitted and all other inbound and inter-zone traffic should be denied by default. 
