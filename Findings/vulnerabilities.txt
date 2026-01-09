@@ -1,0 +1,118 @@
+For extraction of firmware: 
+sudo docker run -t -v "$PWD":/analysis binwalkv3 -Me IoTGoat-raspberry-pi2-sysupgrade.img 
+
+ 
+
+Credentials 
+
+Root credentials: 
+
+The command “cat etc/shadow” gave us: 
+
+root:$1$Jl7H1VOG$Wgw2F/C.nLNTC.4pwDa4H1:18145:0:99999:7::: 
+
+iotgoatuser:$1$79bz0K8z$Ii6Q/if83F1QodGmkb4Ah.:18145:0:99999:7::: 
+
+ 
+
+Decryption: 
+
+We used John The Ripper to decrypt the password for “root” and “iotgoatuser” with the following command: “john hashes.txt” 
+
+We also downloaded the well-known wordlist “rockyou.txt” to faster decrypt the passwords.  
+
+Command we used: “john --wordlist=rockyou.txt hashes.txt” 
+
+ 
+
+Network Credentials: 
+
+Standard credentials for network, with the command “grep -E "username|password" bin/config_generate” gave us the following: 
+
+set network.$1.username='username' 
+
+set network.$1.password='password' 
+
+ 
+ 
+
+RPC Password: 
+
+Standard location for RPC passwords are etc/config/rpcd, therefore we ran the command “cat etc/config/rpcd” and that gave us this: 
+
+option username 'root' 
+
+option password '$p$root' 
+
+ 
+
+ 
+
+Search for hidden passwords: 
+
+We also performed a grep search for common passwords using the command “grep -rnE "password|passwd|pwd" .”, which gave us some important information: 
+
+Hardcoded network password as mentioned before in bin/config_generate. 
+
+Hardcoded RPC password as mentioned before in /etc/config/rpcd 
+
+ 
+
+
+
+SSH Keys 
+
+Public SSH key: 
+We found some public SSH keys that could be accessed. To find these we used the command “ls -l etc/opkg/keys/” 
+
+ 
+
+Private SSH key: 
+
+We executed the command “grep “key” etc/config/uhttpd” and found that there were private keys in /etc/uhttpd.key. 
+
+ 
+
+We then ran the command “cat etc/uhttpd.key” but there was no such directory for it. Therefore, we concluded that the directory uhttpd.key is not stored locally in the firmware image. It is most likely gathered from a webserver.  
+
+ 
+
+Debug information: 
+
+For debug information, we ran the command “cat usr/lib/lua/luci/view/iotgoat/cmd.htm” and found a “Secret Developer Diagnostic Page”. This is a security risk because this page allows user to run shell commands that could comprize the whole firmware. 
+
+ 
+
+ 
+
+Configurations & Network Services 
+
+We ran the command “ls -l etc/init.d/” and got a list of all the start scripts: 
+
+Some important ones for network sevices were dropbear, uhttpd and firewall.  
+
+ 
+
+All these files are in etc/config, therefore we ran the command “cat” on those services we thought were interesting: 
+
+“cat etc/config/uhttpd” 
+
+Here we found two exposed ports: 80 (HTTP) and 443 (HTTPS).  
+
+ 
+
+ 
+
+“cat etc/config/dropbear” 
+
+This command gave us the port for dropbear (the SSH server) which was 22, here we also noticed that RootPasswordAuth was on. We could use the root password to access the SSH server. 
+
+ 
+
+ 
+
+“cat etc/config/firewall” 
+
+Looking at the firewall gave us a better clue on how the network was set up in the firmware. Lan was set to accept both outputs and inputs. Meaning that all services like SSH and HTTP are unprotected for everyone that is on the local network. It is also worth noting that wan has its input set to “reject”, meaning that most attacks on the network would be through the local network.  
+
+ 
